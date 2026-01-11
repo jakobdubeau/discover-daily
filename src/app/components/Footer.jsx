@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import { useState } from 'react'
+import Link from 'next/link'
 
 const Footer = () => {
 
@@ -18,7 +19,7 @@ const Footer = () => {
         <button
           className="text-[#ADB7BE] hover:text-white cursor-pointer"
         >
-          Recommendations
+          My Favourites
         </button>
         <button
           className="text-[#ADB7BE] hover:text-white cursor-pointer"
@@ -27,7 +28,16 @@ const Footer = () => {
         </button>
       </div>
       <p className="text-xs text-neutral-500">
-        ©2026 discover daily
+        ©2026 discover daily. Made with ♥ by {""}
+        <Link
+            href="https://github.com/jakobdubeau"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <button className="hover:text-white transition-colors duration-200 cursor-pointer">
+                jakobdubeau
+            </button>
+        </Link>
       </p>
     </section>
   )
