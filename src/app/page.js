@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import HeroSection from "./components/HeroSection";
 import Playlist from "./components/Playlist";
+import Footer from "./components/Footer";
 
 export default function Home() {
 
