@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 const HeroSection = () => {
   return (
     <section className="lg:py-16">
-        <div>
+        <div className="max-w-5xl mx-auto">
             <motion.h1
                 // parents switches from hidden > show, children w matching variants animate one by one
                 initial="hidden"
@@ -14,9 +14,9 @@ const HeroSection = () => {
                     hidden: {},
                     show: { transition: { staggerChildren: 0.045 } }, // each child starts 45ms after previous
                 }}
-                className="flex justify-center text-7xl font-extrabold text-[#1DB954] tracking-tight"
+                className="flex justify-center text-8xl font-semibold text-[#1DB954] tracking-tight"
             >
-                {"Discover Daily".split("").map((ch, i) => ( //convert string into array of chars, loop and map each char to index (for key) and char
+                {"discover daily".split("").map((ch, i) => ( //convert string into array of chars, loop and map each char to index (for key) and char
                     <motion.span
                         // turns each letter into it's own animated object
                         key={i}
@@ -29,7 +29,7 @@ const HeroSection = () => {
                                 transition: {
                                     type: "spring",
                                     stiffness: 500,
-                                    damping: 14,
+                                    damping: 16,
                                     mass: 0.7,
                                 }
                             }
@@ -39,7 +39,22 @@ const HeroSection = () => {
                     </motion.span>
                 ))}
             </motion.h1>
+            <motion.p
+                initial={{ opacity: 0, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                    delay: 0.9,
+                    duration: 0.7,
+                    ease: "easeOut"
+                }}
+                className="flex justify-center mt-8 font-light text-2xl text-[#ADB7BE] leading-relaxed"
+            >
+                discover weekly, minus the wait
+            </motion.p>
         </div>
+        <button className="flex mt-52 mx-auto px-9 py-4 rounded-full bg-[#1DB954] hover:bg-[#189A45] text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95">
+            Create Playlist
+        </button>
     </section>
   )
 }
