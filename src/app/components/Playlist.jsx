@@ -1,11 +1,18 @@
 import React from 'react'
+import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 
-const Playlist = () => {
+const Playlist = ({ onBack }) => {
   return (
     <section>
-        <h1>
-            hello
-        </h1>
+      <button
+        onClick={onBack}
+        className="absolute top-12 left-16 flex items-center font-semibold text-2xl text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
+      >
+        <ChevronLeftIcon className="w-7 h-7" />
+        <span>
+          back
+        </span>
+      </button>
     </section>
   )
 }
