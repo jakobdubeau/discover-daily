@@ -14,7 +14,7 @@ const HeroSection = () => {
                     hidden: {},
                     show: { transition: { staggerChildren: 0.045 } }, // each child starts 45ms after previous
                 }}
-                className="text-7xl font-extrabold text-[#1DB954]"
+                className="flex justify-center text-7xl font-extrabold text-[#1DB954] tracking-tight"
             >
                 {"Discover Daily".split("").map((ch, i) => ( //convert string into array of chars, loop and map each char to index (for key) and char
                     <motion.span
@@ -22,14 +22,14 @@ const HeroSection = () => {
                         key={i}
                         className="inline-block"
                         variants={{ // defines what to do when parent enters state
-                            hidden: { opacity: 0, y: 20 },
+                            hidden: { opacity: 0, y: 25 },
                             show: {
                                 opacity: 1,
                                 y: 0,
                                 transition: {
                                     type: "spring",
                                     stiffness: 500,
-                                    damping: 16,
+                                    damping: 14,
                                     mass: 0.7,
                                 }
                             }
