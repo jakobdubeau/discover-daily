@@ -6,7 +6,7 @@ import Footer from './Footer'
 const HeroSection = ({ onGen }) => {
 
   return (
-    <section className="lg:py-16 min-h-screen flex flex-col">
+    <section className="xl:py-8 flex flex-col flex-1 mt-18">
       <div className="flex-1">
         <div className="max-w-5xl mx-auto">
           <motion.h1
@@ -61,7 +61,7 @@ const HeroSection = ({ onGen }) => {
           Create Playlist
         </button>
       </div>
-      <div className="mt-auto pb-18">
+      <div className="mt-auto">
         <Footer />
       </div>
     </section>
