@@ -3,10 +3,10 @@ import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 
 const Playlist = ({ onBack }) => {
   return (
-    <section>
+    <section className="relative">
       <button
         onClick={onBack}
-        className="absolute top-12 left-16 flex items-center font-semibold text-2xl text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
+        className="absolute flex items-center font-semibold text-2xl text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
       >
         <ChevronLeftIcon className="w-7 h-7" />
         <span>
