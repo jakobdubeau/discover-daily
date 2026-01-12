@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 
 const Playlist = ({ onBack }) => {

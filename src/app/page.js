@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState } from "react";
 import HeroSection from "../components/HeroSection";
 import Playlist from "../components/Playlist";
