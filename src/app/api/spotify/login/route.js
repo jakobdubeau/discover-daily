@@ -8,6 +8,8 @@ export async function GET() {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
 
+    // missing env variables
+
     if (!clientId || !redirectUri) {
         return new Response(
         "Missing SPOTIFY_CLIENT_ID or SPOTIFY_REDIRECT_URI in env",
@@ -20,6 +22,8 @@ export async function GET() {
 
     const cookieStore = await cookies()
     const isProd = process.env.NODE_ENV === "production"
+
+    // store code verifier and state in http-only cookies
 
     cookieStore.set("spotify_pkce_verifier", codeVerifier, {
         httpOnly: true,
@@ -37,6 +41,8 @@ export async function GET() {
         maxAge: 60 * 10, // 10 minutes
     })
 
+    // build spotify auth url
+
     const scope = 'user-read-private user-read-email user-top-read user-read-recently-played playlist-modify-public playlist-modify-private'
     const authUrl = new URL("https://accounts.spotify.com/authorize")
 
@@ -51,6 +57,8 @@ export async function GET() {
     }
 
     authUrl.search = new URLSearchParams(params).toString()
+
+    // redirect to spotify authorization page
 
     return Response.redirect(authUrl.toString(), 302)
 }
