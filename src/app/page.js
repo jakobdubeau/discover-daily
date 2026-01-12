@@ -32,7 +32,7 @@ export default function Home() {
         <button
           className="absolute right-12 top-10 text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
         >
-          <UserIcon className="w-8 h-8"/>
+          <UserIcon className="w-8 h-8 stroke-2"/>
         </button>
         <div
           className={`flex flex-col flex-1 transition-opacity duration-200 ease-out ${
