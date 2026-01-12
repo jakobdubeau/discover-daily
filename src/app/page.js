@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react";
-import HeroSection from "./components/HeroSection";
-import Playlist from "./components/Playlist";
+import HeroSection from "../components/HeroSection";
+import Playlist from "../components/Playlist";
 import { UserIcon } from "@heroicons/react/24/outline";
 
 export default function Home() {
