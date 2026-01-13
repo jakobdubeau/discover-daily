@@ -16,16 +16,28 @@ const Footer = () => {
         >
           About
         </button>
-        <button
-          className="text-[#ADB7BE] hover:text-white cursor-pointer"
+        <Link
+            href="https://open.spotify.com/user/jakobdubeau?si=191a034fb31041c8"
+            target="_blank"
+            rel="noopener noreferrer"
         >
-          My Favourites
-        </button>
-        <button
-          className="text-[#ADB7BE] hover:text-white cursor-pointer"
+          <button
+            className="text-[#ADB7BE] hover:text-white cursor-pointer"
+          >
+            My Spotify
+          </button>
+        </Link>
+        <Link
+            href="mailto:jakobdubeau@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
         >
-          Contact
-        </button>
+          <button
+            className="text-[#ADB7BE] hover:text-white cursor-pointer"
+          >
+            Contact
+          </button>
+        </Link>
       </div>
       <p className="text-xs text-neutral-500">
         ©2026 discover daily. Made with ♥ by {""}
