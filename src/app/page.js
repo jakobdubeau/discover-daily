@@ -25,6 +25,22 @@ export default function Home() {
     }, 200)
   }
 
+  const connectSpotify = () => {
+    window.location.href = "/api/spotify/login";
+  }
+
+  const handleCreate = async () => {
+    const res = await fetch("/api/spotify/me")
+
+    if (res.ok) {
+      goToPlaylist()
+      // call generate after implemented
+    }
+    else {
+      connectSpotify()
+    }
+  }
+
   return (
     <main className="flex min-h-screen flex-col bg-black bg-[radial-gradient(#2a2030_1px,transparent_1px)] bg-size-[16px_16px]">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.25)_75%)] pointer-events-none"></div>
@@ -40,7 +56,7 @@ export default function Home() {
           }`}
         >
           {!showPlaylist ? (
-            <HeroSection onGen={goToPlaylist} /> 
+            <HeroSection onGen={handleCreate} /> 
           ) : (
             <Playlist onBack={goBack} />
           )}

@@ -21,6 +21,10 @@ export async function GET() {
     const state = generateState()
 
     const cookieStore = await cookies()
+
+    // node_env is environment variable that tells app where it's running, development = npm run dev, production = vercel
+    // secure being true means cookie is only sent over https
+    // so only require https cookies when in production
     const isProd = process.env.NODE_ENV === "production"
 
     // store code verifier and state in http-only cookies
