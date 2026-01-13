@@ -30,13 +30,17 @@ export default function Home() {
   }
 
   const handleCreate = async () => {
-    const res = await fetch("/api/spotify/me")
+    try {
+      const res = await fetch("/api/spotify/me")
 
-    if (res.ok) {
-      goToPlaylist()
-      // call generate after implemented
+      if (res.ok) {
+        goToPlaylist()
+      }
+      else {
+        connectSpotify()
+      }
     }
-    else {
+    catch (e) {
       connectSpotify()
     }
   }
