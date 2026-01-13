@@ -61,7 +61,7 @@ const HeroSection = ({ onGen }) => {
           Create Playlist
         </button>
       </div>
-      <div className="mt-auto sm:pb-4 lg:pb-0">
+      <div className="mt-auto lg:pb-3 xl:pb-0">
         <Footer />
       </div>
     </section>

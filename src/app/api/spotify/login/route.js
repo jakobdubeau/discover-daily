@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createPkcePair, generateState } from "@/lib/spotify"
+import { createPkcePair, generateState } from "@/lib/spotifyAuth"
 
 export const dynamic = 'force-dynamic'
 
