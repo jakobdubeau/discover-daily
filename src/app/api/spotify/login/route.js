@@ -44,17 +44,17 @@ export async function GET() {
     // build spotify auth url
 
     const scope = 'user-read-private user-read-email user-top-read user-read-recently-played playlist-modify-public playlist-modify-private'
-    
+
     const authUrl = new URL("https://accounts.spotify.com/authorize")
 
     const params =  {
-    response_type: 'code',
-    client_id: clientId,
-    scope,
-    state,
-    code_challenge_method: 'S256',
-    code_challenge: codeChallenge,
-    redirect_uri: redirectUri,
+        response_type: 'code',
+        client_id: clientId,
+        scope,
+        state,
+        code_challenge_method: 'S256',
+        code_challenge: codeChallenge,
+        redirect_uri: redirectUri,
     }
 
     authUrl.search = new URLSearchParams(params).toString()
