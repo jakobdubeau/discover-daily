@@ -71,7 +71,7 @@ export async function GET(request) {
 
     if (!tokenRes.ok) {
         const text = await tokenRes.text().catch(() => "")
-        return new Response(`Token exchange failed: ${text}`, { status: 400 })
+        return new Response(`Token exchange failed: ${text}`, { status: tokenRes.status })
     }
 
     const tokenData = await tokenRes.json()
@@ -88,7 +88,7 @@ export async function GET(request) {
         secure: isProd,
         sameSite: "lax",
         path: "/",
-        maxAge: Number(expires_in ?? 3600),
+        maxAge: Number(expires_in) || 3600,
     })
 
     if (refresh_token) {
