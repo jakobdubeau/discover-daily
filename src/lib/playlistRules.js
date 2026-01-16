@@ -79,11 +79,15 @@ export function mixTaste({
     const exploreSelection = pickUniqueTracks(exploreTracks, exploreCount, used)
     exploreSelection.forEach(track => used.add(track.id))
 
-    // ... to unwrap arrays and combine
-    const finalTracks = [...closeSelection, ...exploreSelection]
+    // better shuffling between close and explore
+    // first 10 tracks are close, rest are randomized
+    
+    const initial = closeSelection.slice(0, 10)
+    const rest = [...closeSelection.slice(10), ...exploreSelection]
 
-    // randomize order
-    finalTracks.sort(() => Math.random() - 0.5)
+    rest.sort(() => Math.random() - 0.5)
+    
+    const finalTracks = [...initial, ...rest]
 
     return finalTracks
 }
