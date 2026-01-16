@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
+import SpotifyEmbed from './ui/SpotifyEmbed';
 
 // call generate on mount to create playlist
 // eventually do loading state
