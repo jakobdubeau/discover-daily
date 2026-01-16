@@ -14,7 +14,7 @@ export async function spotifyFetch(token, endpoint, options = {}) {
         ...options,
         headers: {
             Authorization: `Bearer ${token}`,
-            ...(options.body ? { "Content-Type": "application/json" } : {}),
+            ...(typeof options.body === "string" ? { "Content-Type": "application/json" } : {}),
             ...(options.headers || {}),
         },
         cache: "no-store",
@@ -22,14 +22,14 @@ export async function spotifyFetch(token, endpoint, options = {}) {
 
     if (!res.ok) {
         const text = await res.text().catch(() => "")
-        throw new Error(`Spotify API request failed: ${text}`, { status: res.status })
+        throw new Error(text || `Spotify API request failed (${res.status})`)
     }
 
     // successful but no body
     if (res.status === 204) {
         return null
     }
-    
+
     return res.json()
 }
 
@@ -46,10 +46,37 @@ export function fetchTopTracks(token, { time_range = "short_term", limit = 50 } 
   return spotifyFetch(token, `/me/top/tracks?${params}`)
 }
 
-// recently playeds
+export function fetchRecentTracks(token, { limit = 50 } = {}) {
+    const params = new URLSearchParams({ limit: String(limit) })
+    return spotifyFetch(token, `/me/player/recently-played?${params}`)
+}
 
-// fetch recs
+export function fetchRecommendations(token, { seed_tracks = [], limit = 100 } = {}) {
+    if (seed_tracks.length === 0) {
+        throw new Error("At least one seed track is required")
+    }
+    // extract first 5 elements from seed_tracks,  then join with comma into single string
+    const seeds = seed_tracks.slice(0,5).join(",")
+    const params = new URLSearchParams({ seed_tracks: seeds, limit: String(limit)})
+    return spotifyFetch(token, `/recommendations?${params}`)
+}
 
-// create playlist
+export function createPlaylist(token, userId, { name, isPublic = false, description = "" }) {
+    return spotifyFetch(token, `/users/${userId}/playlists`, {
+        method: "POST",
+        body: JSON.stringify({
+            name,
+            public: isPublic,
+            description,
+        })
+    })
+}
 
-// add tracks
+export function addTracks(token, playlistId, uris) {
+    return spotifyFetch(token, `/playlists/${playlistId}/tracks`, {
+        method: "POST",
+        body: JSON.stringify({
+            uris
+        })
+    })
+}
