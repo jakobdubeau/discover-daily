@@ -1,4 +1,20 @@
 import { cookies } from 'next/headers';
+import {
+    fetchMe,
+    fetchTopTracks,
+    fetchRecentTracks,
+    fetchRecommendations,
+    createPlaylist,
+    addTracks
+} from '@/lib/spotifyApi';
+
+import {
+    removeDuplicateTracks,
+    countRecentPlays,
+    filterByRecentPlays,
+    pickSeedTracks,
+    mixTaste
+} from '@/lib/playlistRules';
 
 export const dynamic = 'force-dynamic'
 
@@ -11,26 +27,33 @@ export async function POST() {
         return new Response("No access token", { status: 401 })
     }
 
-    // try
+    try {
 
-    // get me from fetchMe w token
+        const me = await fetchMe(token)
+        const userId = me?.id
+        
+        if (!userId) {
+            return new Response("Missing user id", { status: 400 })
+        }
 
-    // get top tracks
+        const top = await fetchTopTracks(token, { time_range: "medium_term", limit: 50 })
+        const topTracks = top?.items || []
 
-    // get recent
+        const recent = await fetchRecentTracks(token, { limit: 50 })
+        const recentTracks = recent?.items || []
 
-    // close seeds and explore seeds
 
-    // close a and b
-    // explore a and b
+        // build seeds
 
-    // remove dupes from close and explore
+        // get rec pools for a and b close and explore
 
-    // filter not played too much
+        // recent counts and filter
 
-    // final tracks > mix tracks, check length after
 
-    // create playlist and add tracks
 
-    // catch errors and return 500
+
+
+    } catch (error) {
+        return new Response(String(error.message), { status: 500 })
+    }
 }

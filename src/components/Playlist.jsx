@@ -1,6 +1,10 @@
 import React from 'react';
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 
+// call generate on mount to create playlist
+// eventually do loading state
+// playlist and open in spotify link
+
 const Playlist = ({ onBack }) => {
   return (
     <section>

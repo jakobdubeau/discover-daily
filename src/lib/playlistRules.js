@@ -1,9 +1,8 @@
 // future improvements:
 // filter out liked songs
 // filter out songs in playlists
-// ***filter out songs in past generated playlists very strictly
+// ***filter out songs in past generated playlists very strictly, maybe do after db integration
 // ***limit artist repeats
-// interleave resulted tracks better, close at start, then mix
 
 // remove duplicate tracks based on id
 // goal: want generated playlist to have 30 unique songs
@@ -81,7 +80,7 @@ export function mixTaste({
 
     // better shuffling between close and explore
     // first 10 tracks are close, rest are randomized
-    
+
     const initial = closeSelection.slice(0, 10)
     const rest = [...closeSelection.slice(10), ...exploreSelection]
 
