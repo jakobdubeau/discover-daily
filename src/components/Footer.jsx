@@ -2,6 +2,7 @@
 import React from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
+import About from './ui/About';
 
 const Footer = () => {
 
@@ -16,6 +17,7 @@ const Footer = () => {
         >
           About
         </button>
+        <About open={aboutOpen} onClose={() => setAboutOpen(false)} />
         <Link
             href="https://open.spotify.com/user/jakobdubeau?si=191a034fb31041c8"
             target="_blank"
