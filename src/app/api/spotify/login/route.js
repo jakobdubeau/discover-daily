@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createPkcePair, generateState } from "@/lib/spotifyAuth"
 
+// don't cache route
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
@@ -47,7 +48,7 @@ export async function GET() {
 
     // build spotify auth url
 
-    const scope = 'user-read-private user-read-email user-top-read user-read-recently-played playlist-modify-public playlist-modify-private'
+    const scope = 'user-read-private user-read-email user-top-read user-read-recently-played playlist-modify-public playlist-modify-private playlist-read-private'
 
     const authUrl = new URL("https://accounts.spotify.com/authorize")
 

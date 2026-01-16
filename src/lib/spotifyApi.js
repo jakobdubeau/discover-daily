@@ -1,11 +1,15 @@
 export const SPOTIFY_API_BASE = "https://api.spotify.com/v1"
 
+// endpoint attaches to end of base url
+// options are methods, headers, body, etc.
 export async function spotifyFetch(token, endpoint, options = {}) {
 
     if (!token) {
         throw new Error("Missing Spotify access token")
     }
 
+    // ... is spread operator, take all properties of options and copy them here
+    // basically removes the options container so fetch can read the contents directly
     const res = await fetch(`${SPOTIFY_API_BASE}${endpoint}`, {
         ...options,
         headers: {
@@ -18,13 +22,14 @@ export async function spotifyFetch(token, endpoint, options = {}) {
 
     if (!res.ok) {
         const text = await res.text().catch(() => "")
-        throw new Error(text || `Spotify API request failed (${res.status})`)
+        throw new Error(`Spotify API request failed: ${text}`, { status: res.status })
     }
 
+    // successful but no body
     if (res.status === 204) {
         return null
     }
-
+    
     return res.json()
 }
 
@@ -34,9 +39,11 @@ export function fetchMe(token) {
     return spotifyFetch(token, "/me")
 }
 
+// second param is object, pull out those w destructuring, set default values and empty default
+// ex url endpoint: /me/top/tracks?time_range=short_term&limit=50
 export function fetchTopTracks(token, { time_range = "short_term", limit = 50 } = {}) {
-  const params = new URLSearchParams({ time_range, limit: String(limit) });
-  return spotifyFetch(token, `/me/top/tracks?${params}`);
+  const params = new URLSearchParams({ time_range, limit: String(limit) })
+  return spotifyFetch(token, `/me/top/tracks?${params}`)
 }
 
 // recently playeds

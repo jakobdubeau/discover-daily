@@ -36,8 +36,8 @@ export async function GET(request) {
         return new Response("Missing code or state in callback url", { status: 400 })
     }
 
+    // use our generated state and code verifier from before
     const cookieStore = await cookies()
-
     const expectedState = cookieStore.get('spotify_oauth_state')?.value
     const codeVerifier = cookieStore.get('spotify_pkce_verifier')?.value
 
@@ -45,10 +45,13 @@ export async function GET(request) {
         return new Response("Missing PKCE verifier/state cookie (expired?)", { status: 400 })
     }
 
+    // security issue if state doesn't match
     if (returnedState !== expectedState) {
         return new Response("State mismatch", { status: 400 })
     }
 
+    // endpoint to exchange auth code for token (code is it's own other thing just for getting token)
+    // don't need new because we aren't building a url w/ query params
     const tokenUrl = "https://accounts.spotify.com/api/token"
 
     const params =  {
@@ -61,6 +64,8 @@ export async function GET(request) {
 
     const body = new URLSearchParams(params)
 
+
+    // exchange for token
     const tokenRes = await fetch(tokenUrl, {
         method: 'POST',
         headers: {
@@ -70,6 +75,7 @@ export async function GET(request) {
     })
 
     if (!tokenRes.ok) {
+        // returns empty string if text() fails, text() reads response body and converts to string
         const text = await tokenRes.text().catch(() => "")
         return new Response(`Token exchange failed: ${text}`, { status: tokenRes.status })
     }

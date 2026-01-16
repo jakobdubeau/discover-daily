@@ -5,7 +5,6 @@ export const dynamic = 'force-dynamic'
 export async function POST() {
 
     const cookieStore = await cookies()
-        
     const token = cookieStore.get("spotify_access_token")?.value
     
     if (!token) {
