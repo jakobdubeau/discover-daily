@@ -1,3 +1,10 @@
+// future improvements:
+// filter out liked songs
+// filter out songs in playlists
+// ***filter out songs in past generated playlists very strictly
+// ***limit artist repeats
+// interleave resulted tracks better, close at start, then mix
+
 // remove duplicate tracks based on id
 // goal: want generated playlist to have 30 unique songs
 export function removeDuplicateTracks(tracks) {
@@ -20,8 +27,9 @@ export function countRecentPlays(recentTracks) {
     // map is basically python dict
     const counts = new Map()
 
-    for (const track of recentTracks) {
-        counts.set(item.track.id, (counts.get(item.track.id) || 0) + 1)
+    for (const item of recentTracks) {
+        const id = item?.track?.id
+        counts.set(id, (counts.get(id) || 0) + 1)
     }
 
     return counts
@@ -71,5 +79,11 @@ export function mixTaste({
     const exploreSelection = pickUniqueTracks(exploreTracks, exploreCount, used)
     exploreSelection.forEach(track => used.add(track.id))
 
-    return [...closeSelection, ...exploreSelection]
+    // ... to unwrap arrays and combine
+    const finalTracks = [...closeSelection, ...exploreSelection]
+
+    // randomize order
+    finalTracks.sort(() => Math.random() - 0.5)
+
+    return finalTracks
 }
