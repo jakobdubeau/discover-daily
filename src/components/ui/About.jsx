@@ -39,8 +39,8 @@ const About = ({ open, onClose }) => {
 
             <div className="px-6 py-5 text-[13px] sm:text-sm leading-relaxed text-[#ADB7BE] space-y-4">
               <p className="text-[#ADB7BE]">
-                <span className="font-semibold text-white">discover daily</span> is a
-                playlist generator that lets you create personalized playlists of new music we know you'll love
+                <span className="font-semibold text-white">discover daily</span> is a Spotify
+                playlist generator that lets you create personalized playlists of new music we know you'll love.
               </p>
 
               <p>
