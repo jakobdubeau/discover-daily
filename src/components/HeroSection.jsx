@@ -57,7 +57,7 @@ const HeroSection = ({ onGen }) => {
         </div>
         <button
           onClick={onGen}
-          className="flex mt-20 mx-auto px-9 py-4 rounded-full bg-[#1DB954] hover:bg-[#189A45] text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95">
+          className="flex mt-14 mx-auto px-9 py-4 rounded-full bg-[#1DB954] hover:bg-[#189A45] text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95">
           Create Playlist
         </button>
       </div>
