@@ -20,6 +20,10 @@ const poppins = Poppins({
 export const metadata = {
   title: "Discover Daily",
   description: "Spotify playlist generator for new music discovery",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {
