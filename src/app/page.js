@@ -48,6 +48,14 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col bg-black bg-[radial-gradient(#2a2030_1px,transparent_1px)] bg-size-[16px_16px]">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.25)_75%)] pointer-events-none"></div>
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-red-500/20 border border-red-500/50 text-red-300 text-xs font-medium px-10 py-5 rounded-4xl backdrop-blur-sm text-center">
+        ⚠ Temporarily unavailable
+        <p>
+          <br/>Spotify has paused new app registrations.
+          <br/>This app cannot function until that's resolved
+          <br/>
+        </p>
+      </div>
       <div className="container mt-24 mx-auto px-12 pt-4 flex flex-col flex-1">
         <button
           className="absolute right-12 top-10 text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
