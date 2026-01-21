@@ -1,15 +1,17 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
 export const createClient = async () => {
   const cookieStore = await cookies();
-  return createServerClient(
-    supabaseUrl!,
-    supabaseKey!,
-    {
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error("Missing Supabase environment vars");
+  }
+
+  return createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
           return cookieStore.getAll()
