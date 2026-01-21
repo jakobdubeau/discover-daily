@@ -1,9 +1,9 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 // read logged in user on server, route handlers / server actions stuff
 
-export const createClient = async () => {
+export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(
@@ -24,6 +24,6 @@ export const createClient = async () => {
           }
         },
       },
-    },
-  );
-};
+    }
+  )
+}
