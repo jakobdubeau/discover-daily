@@ -53,7 +53,8 @@ export default function Home() {
         <p>
           <br/>Spotify has paused new app registrations.
           <br/>This app cannot function until that's resolved
-          <br/>
+          <br />
+          <br/>https://community.spotify.com/t5/Spotify-for-Developers/Unable-to-create-app/td-p/7283365
         </p>
       </div>
       <div className="container mt-24 mx-auto px-12 pt-4 flex flex-col flex-1">
