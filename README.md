@@ -4,6 +4,18 @@
 <h1 align="center">
     Discover Daily
 </h1>
+
+## Note !
+**This project can no longer work as intended due to Spotify's increasingly restrictive API policies.**
+
+> In November 2024, Spotify [removed access](https://developer.spotify.com/blog/2024-11-27-changes-to-the-web-api) to key web API endpoints for development mode apps, this includes recommendations, related artists, and audio analysis, which this project heavily relied on.
+
+> Then in February 2026, Spotify [further restricted developer access](https://developer.spotify.com/blog/2026-02-06-update-on-developer-access-and-platform-security) by limiting dev apps to 5 authorized users (which must be first registered in the dashboard), and reducing available endpoints even further.
+
+These changes make it effectively impossible to build and ship a polished, functioning app usable by the public. Even with the limited endpoints still available, getting approved for real user access requires an established business and a minimum of 250,000 monthly active users.
+
+<br/>
+<br/>
 <p align="center">
     Discover Daily is a Spotify playlist generator that mimics discover weekly, it aims to make discovering new music easy and on demand. It connects to spotify, looks at your top tracks and recent plays, then builds a 30-song playlist with a 70/30 split — 70% songs close to your taste, 30% exploration into new territory.   <br><br>Check it out <a href="https://discover-daily-seven.vercel.app" target="_blank">here</a>.
 </p>
