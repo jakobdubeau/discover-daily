@@ -33,7 +33,7 @@ const About = ({ open, onClose }) => {
                 </div>
                 <button
                   onClick={onClose}
-                  className="font-mono text-sm text-white/40 hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
+                  className="font-mono text-sm text-white/40 hover:text-white cursor-pointer transition-all duration-200"
                 >
                   [close]
                 </button>

@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.25)_75%)] pointer-events-none"></div>
           <div className="container mt-24 mx-auto px-12 pt-4 flex flex-col flex-1">
             <button
-              className="absolute right-12 top-10 text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
+              className="absolute right-12 top-10 text-[#ADB7BE] hover:text-white cursor-pointer transition-all duration-200"
             >
               <User className="w-9 h-9"/>
             </button>
