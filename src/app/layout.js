@@ -1,6 +1,6 @@
-import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Geist, Geist_Mono, Poppins } from "next/font/google"
 import "./globals.css";
-import { UserIcon } from "@heroicons/react/24/outline";
+import { User } from "lucide-react"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +39,7 @@ export default function RootLayout({ children }) {
             <button
               className="absolute right-12 top-10 text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
             >
-              <UserIcon className="w-7 h-7 stroke-2"/>
+              <User className="w-9 h-9"/>
             </button>
             {children}
           </div>
