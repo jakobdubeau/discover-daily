@@ -112,5 +112,5 @@ export async function GET(request) {
     cookieStore.set("spotify_oauth_state", "", { path: "/", maxAge: 0 })
 
 
-    return Response.redirect(appUrl, 302)
+    return Response.redirect(`${appUrl}/playlist`, 302)
 }
