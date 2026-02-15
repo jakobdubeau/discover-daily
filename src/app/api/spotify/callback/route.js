@@ -12,7 +12,7 @@ export async function GET(request) {
 
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
-    const appUrl = process.env.APP_URL ?? "http://localhost:3000"
+    const appUrl = process.env.APP_URL ?? "http://127.0.0.1:3000"
 
     // missing env variables
 
