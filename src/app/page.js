@@ -36,7 +36,7 @@ export default function Home() {
               hidden: {},
               show: { transition: { staggerChildren: 0.045 } }, // each child starts 45ms after previous
             }}
-            className="flex justify-center text-8xl font-semibold text-[#1DB954] tracking-tight"
+            className="flex justify-center text-6xl md:text-8xl font-semibold text-[#1DB954] tracking-tight"
           >
             {"discover daily".split("").map((ch, i) => ( //convert string into array of chars, loop and map each char to index (for key) and char
               <motion.span
@@ -69,18 +69,18 @@ export default function Home() {
               duration: 0.7,
               ease: "easeOut"
             }}
-            className="flex justify-center mt-8 font-light text-2xl text-[#ADB7BE] leading-relaxed"
+            className="flex justify-center mt-4 lg:mt-8 font-light text-lg md:text-2xl text-[#ADB7BE] leading-relaxed"
           >
             discover weekly, minus the wait
           </motion.p>
         </div>
         <button
           onClick={handleCreate}
-          className="flex mt-14 mx-auto px-9 py-4 rounded-full bg-[#1DB954] hover:bg-[#189A45] text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95">
+          className="flex mt-14 mx-auto px-6 md:px-9 py-4 rounded-full bg-[#1DB954] hover:bg-[#189A45] text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95">
           Create Playlist
         </button>
       </div>
-      <div className="relative z-10 mt-auto lg:pb-3 xl:pb-0">
+      <div className="relative z-10 mt-auto pb-3 md:pb-6 lg:pb-3 xl:pb-0">
         <Footer />
       </div>
     </section>

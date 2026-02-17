@@ -33,7 +33,7 @@ export default function Home() {
     <section className="flex flex-col flex-1 items-center justify-center">
       <Link
         href="/"
-        className="absolute top-10 left-12 flex items-center font-semibold text-2xl text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
+        className="absolute top-4 md:top-10 left-2 md:left-12 flex items-center font-semibold text-2xl text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
       >
         <ChevronLeftIcon className="w-7 h-7" />
         <span>back</span>
