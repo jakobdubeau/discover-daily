@@ -36,7 +36,7 @@ export default function Home() {
               hidden: {},
               show: { transition: { staggerChildren: 0.045 } }, // each child starts 45ms after previous
             }}
-            className="flex justify-center text-6xl md:text-8xl font-semibold text-[#1DB954] tracking-tight"
+            className="flex justify-center text-5xl sm:text-7xl md:text-8xl font-semibold text-[#1DB954] tracking-tight"
           >
             {"discover daily".split("").map((ch, i) => ( //convert string into array of chars, loop and map each char to index (for key) and char
               <motion.span
@@ -80,7 +80,7 @@ export default function Home() {
           Create Playlist
         </button>
       </div>
-      <div className="relative z-10 mt-auto pb-3 md:pb-6 lg:pb-3 xl:pb-0">
+      <div className="relative z-10 mt-auto pb-6 xl:pb-0">
         <Footer />
       </div>
     </section>
