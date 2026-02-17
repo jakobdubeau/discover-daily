@@ -80,7 +80,7 @@ export default function Home() {
           Create Playlist
         </button>
       </div>
-      <div className="relative z-10 mt-auto pb-6 xl:pb-0">
+      <div className="relative z-10 mt-auto pb-9 sm:pb-6 xl:pb-0">
         <Footer />
       </div>
     </section>
