@@ -61,8 +61,8 @@ export function fetchRecommendations(token, { seed_tracks = [], limit = 100 } = 
     return spotifyFetch(token, `/recommendations?${params}`)
 }
 
-export function createPlaylist(token, userId, { name, isPublic = false, description = "" }) {
-    return spotifyFetch(token, `/users/${userId}/playlists`, {
+export function createPlaylist(token, { name, isPublic = false, description = "" }) {
+    return spotifyFetch(token, `/me/playlists`, {
         method: "POST",
         body: JSON.stringify({
             name,
@@ -73,7 +73,7 @@ export function createPlaylist(token, userId, { name, isPublic = false, descript
 }
 
 export function addTracks(token, playlistId, uris) {
-    return spotifyFetch(token, `/playlists/${playlistId}/tracks`, {
+    return spotifyFetch(token, `/playlists/${playlistId}/items`, {
         method: "POST",
         body: JSON.stringify({
             uris
