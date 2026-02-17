@@ -46,19 +46,18 @@ export function fetchTopTracks(token, { time_range = "short_term", limit = 50 } 
   return spotifyFetch(token, `/me/top/tracks?${params}`)
 }
 
+export function fetchTopArtists(token, { time_range = "short_term", limit = 50 } = {}) {
+  const params = new URLSearchParams({ time_range, limit: String(limit) })
+  return spotifyFetch(token, `/me/top/artists?${params}`)
+}
+
+export function fetchArtistRecommendations(token, artistId) {
+    return spotifyFetch(token, `/artists/${artistId}/related-artists`)
+}
+
 export function fetchRecentTracks(token, { limit = 50 } = {}) {
     const params = new URLSearchParams({ limit: String(limit) })
     return spotifyFetch(token, `/me/player/recently-played?${params}`)
-}
-
-export function fetchRecommendations(token, { seed_tracks = [], limit = 100 } = {}) {
-    if (seed_tracks.length === 0) {
-        throw new Error("At least one seed track is required")
-    }
-    // extract first 5 elements from seed_tracks,  then join with comma into single string
-    const seeds = seed_tracks.slice(0,5).join(",")
-    const params = new URLSearchParams({ seed_tracks: seeds, limit: String(limit)})
-    return spotifyFetch(token, `/recommendations?${params}`)
 }
 
 export function createPlaylist(token, { name, isPublic = false, description = "" }) {
