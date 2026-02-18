@@ -3,12 +3,16 @@ import {
     fetchMe,
     fetchTopTracks,
     fetchTopArtists,
-    fetchArtistRecommendations,
     fetchRecentTracks,
     searchTracks,
     createPlaylist,
     addTracks
 } from '@/lib/spotifyApi';
+
+import {
+    searchArtist,
+    fetchSimilarArtists
+} from '@/lib/appleMusicApi';
 
 import {
     removeDuplicates,
@@ -60,28 +64,36 @@ export async function POST() {
         const closeRelated = []
         const exploreRelated = []
 
-        // fetch related artists for each seed into flat arrays
-        for (const artist of closeSeeds) {
-            try {
-                const data = await fetchArtistRecommendations(token, artist.id)
-                closeRelated.push(...(data?.artists || []))
-            } catch { continue }
+        // find similar artists via apple music for each seed
+        const findSimilar = async (seeds) => {
+            const related = []
+            for (const artist of seeds) {
+                try {
+                    // search apple music for this artist
+                    const searchData = await searchArtist(artist.name)
+                    const appleId = searchData?.results?.artists?.data?.[0]?.id
+                    if (!appleId) continue
+
+                    // get similar artists from apple music
+                    const similarData = await fetchSimilarArtists(appleId)
+                    const similar = similarData?.views?.["similar-artists"]?.data || []
+                    related.push(...similar.map(a => ({ name: a.attributes?.name })))
+                } catch { continue }
+            }
+            return related
         }
 
-        for (const artist of exploreSeeds) {
-            try {
-                const data = await fetchArtistRecommendations(token, artist.id)
-                exploreRelated.push(...(data?.artists || []))
-            } catch { continue }
-        }
+        closeRelated.push(...await findSimilar(closeSeeds))
+        exploreRelated.push(...await findSimilar(exploreSeeds))
 
-        // dedupe related artists, remove users top artists
-        const topArtistIds = new Set(topArtists.map(a => a.id))
+        // dedupe related artists, remove users top artists (by name since apple music ids differ from spotify)
+        const topArtistNames = new Set(topArtists.map(a => a.name.toLowerCase()))
         const dedupeArtists = (artists) => {
             const seen = new Set()
             return artists.filter(a => {
-                if (topArtistIds.has(a.id) || seen.has(a.id)) return false
-                seen.add(a.id)
+                const name = a.name?.toLowerCase()
+                if (!name || topArtistNames.has(name) || seen.has(name)) return false
+                seen.add(name)
                 return true
             })
         }
