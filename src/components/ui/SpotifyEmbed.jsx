@@ -1,6 +1,6 @@
 import React from 'react'
 
-const SpotifyEmbed = ({ playlistId, height = 420 }) => {
+const SpotifyEmbed = ({ playlistId, height = 700 }) => {
 
     if (!playlistId) {
         return null

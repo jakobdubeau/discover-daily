@@ -76,7 +76,7 @@ export async function POST() {
 
                     // get similar artists from apple music
                     const similarData = await fetchSimilarArtists(appleId)
-                    const similar = similarData?.views?.["similar-artists"]?.data || []
+                    const similar = similarData?.data || []
                     related.push(...similar.map(a => ({ name: a.attributes?.name })))
                 } catch { continue }
             }
