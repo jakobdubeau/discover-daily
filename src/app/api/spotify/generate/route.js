@@ -45,21 +45,34 @@ export async function POST() {
         const top = await fetchTopTracks(token, { time_range: "short_term", limit: 50 })
         const topTracks = top?.items || []
 
-        // get top artists
-        const topA = await fetchTopArtists(token, { time_range: "short_term", limit: 50 })
-        const topArtists = topA?.items || []
+        // get top artists from both time ranges for variety
+        const topShort = await fetchTopArtists(token, { time_range: "short_term", limit: 50 })
+        const topMedium = await fetchTopArtists(token, { time_range: "medium_term", limit: 50 })
+        const shortArtists = topShort?.items || []
+        const mediumArtists = topMedium?.items || []
+
+        // combine both for filtering (all known artists)
+        const seenNames = new Set()
+        const topArtists = [...shortArtists, ...mediumArtists].filter(a => {
+            const name = a.name.toLowerCase()
+            if (seenNames.has(name)) return false
+            seenNames.add(name)
+            return true
+        })
 
         // get recently played tracks
         const recent = await fetchRecentTracks(token, { limit: 50 })
         const recentTracks = recent?.items || []
 
-        // make sure enough top tracks to use for seeds
-        if (topArtists.length < 15) {
+        // make sure enough top artists to use for seeds
+        if (shortArtists.length < 10) {
             return new Response("Not enough listening history yet", { status: 400 })
         }
 
-        const closeSeeds = topArtists.slice(0, 5)
-        const exploreSeeds = topArtists.slice(10,15)
+        // randomly pick seeds from each pool for variety between generations
+        const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5)
+        const closeSeeds = shuffle(shortArtists.slice(0, 30)).slice(0, 10)
+        const exploreSeeds = shuffle(mediumArtists.slice(10)).slice(0, 10)
 
         const closeRelated = []
         const exploreRelated = []

@@ -30,7 +30,7 @@ export default function Home() {
   }, [])
 
   return (
-    <section className="flex flex-col flex-1 items-center justify-center">
+    <section className="flex flex-col flex-1 items-center">
       <Link
         href="/"
         className="absolute top-4 md:top-10 left-2 md:left-12 flex items-center font-semibold text-2xl text-[#ADB7BE] hover:text-white cursor-pointer transition-all hover:scale-105 duration-200"
