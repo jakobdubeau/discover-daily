@@ -27,5 +27,5 @@ export function searchArtist(artistName) {
 }
 
 export function fetchSimilarArtists(artistId) {
-    return appleMusicFetch(`/v1/catalog/us/artists/${artistId}?views=similar-artists`)
+    return appleMusicFetch(`/v1/catalog/us/artists/${artistId}/view/similar-artists`)
 }
