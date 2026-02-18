@@ -60,6 +60,11 @@ export function fetchRecentTracks(token, { limit = 50 } = {}) {
     return spotifyFetch(token, `/me/player/recently-played?${params}`)
 }
 
+export function searchTracks(token, query, { limit = 10 } = {}) {
+    const params = new URLSearchParams({ q: query, type: "track", limit: String(limit) })
+    return spotifyFetch(token, `/search?${params}`)
+}
+
 export function createPlaylist(token, { name, isPublic = false, description = "" }) {
     return spotifyFetch(token, `/me/playlists`, {
         method: "POST",

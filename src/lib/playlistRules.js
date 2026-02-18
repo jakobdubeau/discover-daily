@@ -6,18 +6,30 @@
 
 // remove duplicate tracks based on id
 // goal: want generated playlist to have 30 unique songs
-export function removeDuplicateTracks(tracks) {
-    const seen = new Set()
-    const uniqueTracks = []
+export function removeDuplicates(tracks, topArtists) {
+    const topArtistIds = new Set(topArtists.map(a => a.id))
+
+    const seenTracks = new Set()
+    const seenArtists = new Set()
+    const filteredTracks = []
 
     for (const track of tracks) {
-        if (!seen.has(track.id)) {
-            seen.add(track.id)
-            uniqueTracks.push(track)
-        }
+        if (seenTracks.has(track.id)) continue
+
+        const artistIds = track.artists.map(a => a?.id).filter(Boolean)
+
+        if (artistIds.some(id => topArtistIds.has(id))) continue
+
+        // 2) skip if ANY artist already used in kept tracks
+        if (artistIds.some(id => seenArtists.has(id))) continue
+
+        // keep it
+        seenTracks.add(track.id)
+        artistIds.forEach(id => seenArtists.add(id))
+        filteredTracks.push(track)
     }
 
-    return uniqueTracks
+    return filteredTracks
 }
 
 // check recently played song counts
