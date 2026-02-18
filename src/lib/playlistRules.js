@@ -19,8 +19,7 @@ export function removeDuplicates(tracks, topArtists) {
         const artistIds = track.artists.map(a => a?.id).filter(Boolean)
 
         if (artistIds.some(id => topArtistIds.has(id))) continue
-
-        // 2) skip if ANY artist already used in kept tracks
+        
         if (artistIds.some(id => seenArtists.has(id))) continue
 
         // keep it
@@ -90,15 +89,9 @@ export function mixTaste({
     const exploreSelection = pickUniqueTracks(exploreTracks, exploreCount, used)
     exploreSelection.forEach(track => used.add(track.id))
 
-    // better shuffling between close and explore
-    // first 10 tracks are close, rest are randomized
-
-    const initial = closeSelection.slice(0, 10)
-    const rest = [...closeSelection.slice(10), ...exploreSelection]
-
-    rest.sort(() => Math.random() - 0.5)
-    
-    const finalTracks = [...initial, ...rest]
+    // shuffle close and explore together
+    const finalTracks = [...closeSelection, ...exploreSelection]
+    finalTracks.sort(() => Math.random() - 0.5)
 
     return finalTracks
 }

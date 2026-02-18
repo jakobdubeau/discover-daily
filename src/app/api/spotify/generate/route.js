@@ -2,17 +2,18 @@ import { cookies } from 'next/headers';
 import {
     fetchMe,
     fetchTopTracks,
+    fetchTopArtists,
+    fetchArtistRecommendations,
     fetchRecentTracks,
-    fetchRecommendations,
+    searchTracks,
     createPlaylist,
     addTracks
 } from '@/lib/spotifyApi';
 
 import {
-    removeDuplicateTracks,
+    removeDuplicates,
     countRecentPlays,
     filterByRecentPlays,
-    pickSeedTracks,
     mixTaste
 } from '@/lib/playlistRules';
 
@@ -40,30 +41,77 @@ export async function POST() {
         const top = await fetchTopTracks(token, { time_range: "short_term", limit: 50 })
         const topTracks = top?.items || []
 
+        // get top artists
+        const topA = await fetchTopArtists(token, { time_range: "short_term", limit: 50 })
+        const topArtists = topA?.items || []
+
         // get recently played tracks
         const recent = await fetchRecentTracks(token, { limit: 50 })
         const recentTracks = recent?.items || []
 
         // make sure enough top tracks to use for seeds
-        if (topTracks.length < 10) {
+        if (topArtists.length < 15) {
             return new Response("Not enough listening history yet", { status: 400 })
         }
 
-        // pick seeds based off top tracks
-        const closeSeeds = pickSeedTracks(topTracks, { start: 0, count: 5 })
-        const exploreSeeds = pickSeedTracks(topTracks, { start: 10, count: 5 })
-        
-        // get recommendations with seeds and reversed seeds pool for variety and no bias
-        const closeA = await fetchRecommendations(token, {seed_tracks: closeSeeds, limit: 100 })
-        const closeB = await fetchRecommendations(token, {seed_tracks: [...closeSeeds].reverse(), limit: 100 })
+        const closeSeeds = topArtists.slice(0, 5)
+        const exploreSeeds = topArtists.slice(10,15)
 
-        const exploreA = await fetchRecommendations(token, {seed_tracks: exploreSeeds, limit: 100 })
-        const exploreB = await fetchRecommendations(token, {seed_tracks: [...exploreSeeds].reverse(), limit: 100 })
+        const closeRelated = []
+        const exploreRelated = []
 
-        // remove duplicates from recommendations
-        // spread to combine the two recommendation lists
-        let closeCandidates = removeDuplicateTracks([...(closeA?.tracks || []), ...(closeB?.tracks || [])])
-        let exploreCandidates = removeDuplicateTracks([...(exploreA?.tracks || []), ...(exploreB?.tracks || [])])
+        // fetch related artists for each seed into flat arrays
+        for (const artist of closeSeeds) {
+            try {
+                const data = await fetchArtistRecommendations(token, artist.id)
+                closeRelated.push(...(data?.artists || []))
+            } catch { continue }
+        }
+
+        for (const artist of exploreSeeds) {
+            try {
+                const data = await fetchArtistRecommendations(token, artist.id)
+                exploreRelated.push(...(data?.artists || []))
+            } catch { continue }
+        }
+
+        // dedupe related artists, remove users top artists
+        const topArtistIds = new Set(topArtists.map(a => a.id))
+        const dedupeArtists = (artists) => {
+            const seen = new Set()
+            return artists.filter(a => {
+                if (topArtistIds.has(a.id) || seen.has(a.id)) return false
+                seen.add(a.id)
+                return true
+            })
+        }
+
+        const closeArtists = dedupeArtists(closeRelated).slice(0, 15)
+        const exploreArtists = dedupeArtists(exploreRelated).slice(0, 15)
+
+        // search for tracks by each related artist
+        const searchArtistTracks = async (artists) => {
+            const tracks = []
+            for (const artist of artists) {
+                try {
+                    const data = await searchTracks(token, `artist:${artist.name}`, { limit: 10 })
+                    const items = data?.tracks?.items || []
+                    tracks.push(...items.map(t => ({
+                        id: t.id,
+                        uri: t.uri,
+                        name: t.name,
+                        artists: (t.artists || []).map(a => ({ name: a.name, id: a.id })),
+                    })))
+                } catch { continue }
+            }
+            return tracks
+        }
+
+        let closeCandidates = await searchArtistTracks(closeArtists)
+        let exploreCandidates = await searchArtistTracks(exploreArtists)
+
+        closeCandidates = removeDuplicates(closeCandidates, topArtists)
+        exploreCandidates = removeDuplicates(exploreCandidates, topArtists)
 
         // get recent counts of recently played tracks
         const recentCounts = countRecentPlays(recentTracks)
@@ -80,8 +128,8 @@ export async function POST() {
         let finalTracks = mixTaste({
             closeTracks: closeCandidates,
             exploreTracks: exploreCandidates,
-            total: 30,
-            closeRatio: 0.7,
+            total: 20,
+            closeRatio: 0.5,
         })
 
         if (finalTracks.length < 10) {
