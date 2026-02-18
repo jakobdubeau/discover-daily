@@ -51,10 +51,6 @@ export function fetchTopArtists(token, { time_range = "short_term", limit = 50 }
   return spotifyFetch(token, `/me/top/artists?${params}`)
 }
 
-export function fetchArtistRecommendations(token, artistId) {
-    return spotifyFetch(token, `/artists/${artistId}/related-artists`)
-}
-
 export function fetchRecentTracks(token, { limit = 50 } = {}) {
     const params = new URLSearchParams({ limit: String(limit) })
     return spotifyFetch(token, `/me/player/recently-played?${params}`)
