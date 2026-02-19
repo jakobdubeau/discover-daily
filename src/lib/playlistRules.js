@@ -90,8 +90,15 @@ export function mixTaste({
     exploreSelection.forEach(track => used.add(track.id))
 
     // shuffle close and explore together
-    const finalTracks = [...closeSelection, ...exploreSelection]
-    finalTracks.sort(() => Math.random() - 0.5)
+    return shuffle([...closeSelection, ...exploreSelection])
+}
 
-    return finalTracks
+// fisher-yates shuffle, unbiased random ordering
+export function shuffle(arr) {
+    const a = [...arr]
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
 }

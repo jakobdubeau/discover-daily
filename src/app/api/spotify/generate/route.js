@@ -15,6 +15,7 @@ import {
 } from '@/lib/appleMusicApi';
 
 import {
+    shuffle,
     removeDuplicates,
     countRecentPlays,
     filterByRecentPlays,
@@ -69,7 +70,6 @@ export async function POST() {
         }
 
         // randomly pick seeds from each pool for variety between generations
-        const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5)
         const closeSeeds = shuffle(shortArtists.slice(0, 15)).slice(0, 8)
         const exploreSeeds = shuffle(mediumArtists.slice(5, 25)).slice(0, 8)
 
@@ -107,8 +107,8 @@ export async function POST() {
             })
         }
 
-        const closeArtists = removeDuplicateArtists(closeRelated).slice(0, 15)
-        const exploreArtists = removeDuplicateArtists(exploreRelated).slice(0, 15)
+        const closeArtists = shuffle(removeDuplicateArtists(closeRelated)).slice(0, 15)
+        const exploreArtists = shuffle(removeDuplicateArtists(exploreRelated)).slice(0, 15)
 
         // search for tracks by each related artist (parallelized)
         const searchArtistTracks = async (artist) => {
