@@ -4,7 +4,7 @@
 <h1 align="center">
     Discover Daily
 </h1>
-Update - I had to pay $100 for apple music api, so now i pull top artists from spotify, search similar on apple music, then back to spotify to find new stuff. This is my current best option even though it still kinda sucks (I'm good at finding new music so I'd know). I'll be trying to make the recommendations better even with my limited options, although it will never be as good as being able to use spotify's recommendations endpoint :(
+Update - I had to pay $100 for apple music api, so now i pull top artists from spotify, search similar on apple music, then back to spotify to find new stuff. This is my current best option even though it still kinda sucks (I'm good at finding new music so I'd know). I'll be trying to make the recommendations better with my limited options, although it will never be as good as being able to use spotify's recommendations endpoint :(
 
 
 
@@ -26,7 +26,10 @@ These changes make it effectively impossible to build and ship a fully functioni
 ## Preview
 
 <div align="center">
-    <img alt="site" src="public/images/ddsite.png" width="1000" style="border-radius: 10px;" />
+    <img alt="home" src="public/images/discoverdailyhome.png" width="1000" style="border-radius: 10px;" />
+</div>
+<div align="center">
+    <img alt="playlist" src="public/images/discoverdailyplaylist.png" width="1000" style="border-radius: 10px;" />
 </div>
 
 
