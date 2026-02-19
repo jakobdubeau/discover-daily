@@ -41,15 +41,18 @@ export async function POST() {
             return new Response("Missing user id", { status: 400 })
         }
 
-        // get top tracks
-        const top = await fetchTopTracks(token, { time_range: "short_term", limit: 50 })
-        const topTracks = top?.items || []
+        // fetch all spotify data in parallel
+        const [top, topShort, topMedium, recent] = await Promise.all([
+            fetchTopTracks(token, { time_range: "short_term", limit: 50 }),
+            fetchTopArtists(token, { time_range: "short_term", limit: 50 }),
+            fetchTopArtists(token, { time_range: "medium_term", limit: 50 }),
+            fetchRecentTracks(token, { limit: 50 }),
+        ])
 
-        // get top artists from both time ranges for variety
-        const topShort = await fetchTopArtists(token, { time_range: "short_term", limit: 50 })
-        const topMedium = await fetchTopArtists(token, { time_range: "medium_term", limit: 50 })
+        const topTracks = top?.items || []
         const shortArtists = topShort?.items || []
         const mediumArtists = topMedium?.items || []
+        const recentTracks = recent?.items || []
 
         // combine both for filtering (all known artists)
         const seenNames = new Set()
@@ -60,10 +63,6 @@ export async function POST() {
             return true
         })
 
-        // get recently played tracks
-        const recent = await fetchRecentTracks(token, { limit: 50 })
-        const recentTracks = recent?.items || []
-
         // make sure enough top artists to use for seeds
         if (shortArtists.length < 10) {
             return new Response("Not enough listening history yet", { status: 400 })
@@ -71,37 +70,34 @@ export async function POST() {
 
         // randomly pick seeds from each pool for variety between generations
         const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5)
-        const closeSeeds = shuffle(shortArtists.slice(0, 30)).slice(0, 10)
-        const exploreSeeds = shuffle(mediumArtists.slice(10)).slice(0, 10)
+        const closeSeeds = shuffle(shortArtists.slice(0, 15)).slice(0, 8)
+        const exploreSeeds = shuffle(mediumArtists.slice(5, 25)).slice(0, 8)
 
         const closeRelated = []
         const exploreRelated = []
 
         // find similar artists via apple music for each seed
-        const findSimilar = async (seeds) => {
-            const related = []
-            for (const artist of seeds) {
-                try {
-                    // search apple music for this artist
-                    const searchData = await searchArtist(artist.name)
-                    const appleId = searchData?.results?.artists?.data?.[0]?.id
-                    if (!appleId) continue
+        const findSimilarForArtist = async (artist) => {
+            const searchData = await searchArtist(artist.name)
+            const appleId = searchData?.results?.artists?.data?.[0]?.id
+            if (!appleId) return []
 
-                    // get similar artists from apple music
-                    const similarData = await fetchSimilarArtists(appleId)
-                    const similar = similarData?.data || []
-                    related.push(...similar.map(a => ({ name: a.attributes?.name })))
-                } catch { continue }
-            }
-            return related
+            const similarData = await fetchSimilarArtists(appleId)
+            const similar = similarData?.data || []
+            return similar.map(a => ({ name: a.attributes?.name }))
         }
 
-        closeRelated.push(...await findSimilar(closeSeeds))
-        exploreRelated.push(...await findSimilar(exploreSeeds))
+        const [closeResults, exploreResults] = await Promise.all([
+            Promise.allSettled(closeSeeds.map(findSimilarForArtist)),
+            Promise.allSettled(exploreSeeds.map(findSimilarForArtist)),
+        ])
 
-        // dedupe related artists, remove users top artists (by name since apple music ids differ from spotify)
+        for (const r of closeResults) if (r.status === "fulfilled") closeRelated.push(...r.value)
+        for (const r of exploreResults) if (r.status === "fulfilled") exploreRelated.push(...r.value)
+
+        // remove duplicate related artists, remove users top artists (by name since apple music ids differ from spotify)
         const topArtistNames = new Set(topArtists.map(a => a.name.toLowerCase()))
-        const dedupeArtists = (artists) => {
+        const removeDuplicateArtists = (artists) => {
             const seen = new Set()
             return artists.filter(a => {
                 const name = a.name?.toLowerCase()
@@ -111,29 +107,28 @@ export async function POST() {
             })
         }
 
-        const closeArtists = dedupeArtists(closeRelated).slice(0, 15)
-        const exploreArtists = dedupeArtists(exploreRelated).slice(0, 15)
+        const closeArtists = removeDuplicateArtists(closeRelated).slice(0, 15)
+        const exploreArtists = removeDuplicateArtists(exploreRelated).slice(0, 15)
 
-        // search for tracks by each related artist
-        const searchArtistTracks = async (artists) => {
-            const tracks = []
-            for (const artist of artists) {
-                try {
-                    const data = await searchTracks(token, `artist:${artist.name}`, { limit: 10 })
-                    const items = data?.tracks?.items || []
-                    tracks.push(...items.map(t => ({
-                        id: t.id,
-                        uri: t.uri,
-                        name: t.name,
-                        artists: (t.artists || []).map(a => ({ name: a.name, id: a.id })),
-                    })))
-                } catch { continue }
-            }
-            return tracks
+        // search for tracks by each related artist (parallelized)
+        const searchArtistTracks = async (artist) => {
+            const data = await searchTracks(token, `artist:${artist.name}`, { limit: 10 })
+            const items = data?.tracks?.items || []
+            return items.map(t => ({
+                id: t.id,
+                uri: t.uri,
+                name: t.name,
+                artists: (t.artists || []).map(a => ({ name: a.name, id: a.id })),
+            }))
         }
 
-        let closeCandidates = await searchArtistTracks(closeArtists)
-        let exploreCandidates = await searchArtistTracks(exploreArtists)
+        const [closeTrackResults, exploreTrackResults] = await Promise.all([
+            Promise.allSettled(closeArtists.map(searchArtistTracks)),
+            Promise.allSettled(exploreArtists.map(searchArtistTracks)),
+        ])
+
+        let closeCandidates = closeTrackResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
+        let exploreCandidates = exploreTrackResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
 
         closeCandidates = removeDuplicates(closeCandidates, topArtists)
         exploreCandidates = removeDuplicates(exploreCandidates, topArtists)
