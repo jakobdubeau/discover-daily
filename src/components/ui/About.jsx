@@ -11,6 +11,8 @@ const About = ({ open, onClose }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          style={{ willChange: "opacity" }}
           onMouseDown={onClose}
         >
           <motion.div
