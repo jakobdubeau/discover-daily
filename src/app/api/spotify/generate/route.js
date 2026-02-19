@@ -92,11 +92,6 @@ export async function POST() {
             Promise.allSettled(exploreSeeds.map(findSimilarForArtist)),
         ])
 
-        const closeFailed = closeResults.filter(r => r.status === "rejected")
-        const exploreFailed = exploreResults.filter(r => r.status === "rejected")
-        console.log(`Apple Music: close ${closeResults.length - closeFailed.length}/${closeResults.length} ok, explore ${exploreResults.length - exploreFailed.length}/${exploreResults.length} ok`)
-        if (closeFailed[0]) console.error("Sample error:", closeFailed[0].reason?.message || closeFailed[0].reason)
-
         for (const r of closeResults) if (r.status === "fulfilled") closeRelated.push(...r.value)
         for (const r of exploreResults) if (r.status === "fulfilled") exploreRelated.push(...r.value)
 
@@ -156,8 +151,6 @@ export async function POST() {
             total: 20,
             closeRatio: 0.5,
         })
-
-        console.log(`Pipeline: closeRelated=${closeRelated.length} exploreRelated=${exploreRelated.length} closeArtists=${closeArtists.length} exploreArtists=${exploreArtists.length} closeCandidates=${closeCandidates.length} exploreCandidates=${exploreCandidates.length} final=${finalTracks.length}`)
 
         if (finalTracks.length < 10) {
             return new Response("Not enough tracks after filtering", { status: 400 })
