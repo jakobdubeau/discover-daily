@@ -67,7 +67,7 @@ export function pickSeedTracks(topTracks, { start = 0, count = 5 } = {}) {
 // goal: close and explore won't both add the same track
 export function pickUniqueTracks(tracks, count, usedIds) {
     const uniqueTracks = tracks.filter(track => !usedIds.has(track.id))
-    return uniqueTracks.slice(0, count)
+    return shuffle(uniqueTracks).slice(0, count)
 }
 
 // mix close and explore tracks into final playlist

@@ -56,8 +56,8 @@ export function fetchRecentTracks(token, { limit = 50 } = {}) {
     return spotifyFetch(token, `/me/player/recently-played?${params}`)
 }
 
-export function searchTracks(token, query, { limit = 10 } = {}) {
-    const params = new URLSearchParams({ q: query, type: "track", limit: String(limit) })
+export function searchTracks(token, query, { limit = 10, offset = 0 } = {}) {
+    const params = new URLSearchParams({ q: query, type: "track", limit: String(limit), offset: String(offset) })
     return spotifyFetch(token, `/search?${params}`)
 }
 

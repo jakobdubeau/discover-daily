@@ -70,8 +70,8 @@ export async function POST() {
         }
 
         // randomly pick seeds from each pool for variety between generations
-        const closeSeeds = shuffle(shortArtists.slice(0, 15)).slice(0, 8)
-        const exploreSeeds = shuffle(mediumArtists.slice(5, 25)).slice(0, 8)
+        const closeSeeds = shuffle(shortArtists.slice(0, 15)).slice(0, 10)
+        const exploreSeeds = shuffle(mediumArtists.slice(5, 25)).slice(0, 10)
 
         const closeRelated = []
         const exploreRelated = []
