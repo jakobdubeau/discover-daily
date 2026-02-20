@@ -2,16 +2,15 @@
 // filter out liked songs
 // filter out songs in playlists
 // ***filter out songs in past generated playlists very strictly, maybe do after db integration
-// ***limit artist repeats
 
 // remove duplicate tracks based on id
-// goal: want generated playlist to have 30 unique songs
+
 export function removeDuplicates(tracks, topArtists) {
     const topArtistIds = new Set(topArtists.map(a => a.id))
 
     const seenTracks = new Set()
     const seenArtists = new Set()
-    const filteredTracks = []
+    const finalTracks = []
 
     for (const track of tracks) {
         if (seenTracks.has(track.id)) continue
@@ -25,14 +24,14 @@ export function removeDuplicates(tracks, topArtists) {
         // keep it
         seenTracks.add(track.id)
         artistIds.forEach(id => seenArtists.add(id))
-        filteredTracks.push(track)
+        finalTracks.push(track)
     }
 
-    return filteredTracks
+    return finalTracks
 }
 
 // check recently played song counts
-// goal: don't want to recommend songs the user has been playing a lot recently
+
 export function countRecentPlays(recentTracks) {
     // map is basically python dict
     const counts = new Map()
@@ -51,33 +50,31 @@ export function filterByRecentPlays(tracks, recentPlays, { threshold = 3 } = {})
     return tracks.filter(track => (recentPlays.get(track.id) || 0) <= threshold)
 }
 
-// pick seeds from top tracks, for spotifys recommendation endpoint
-// goal: good seeds for spotifys recommendation system
-export function pickSeedTracks(topTracks, { start = 0, count = 5 } = {}) {
+// pick seeds with 1 per artist for diverse radios
+export function pickSeeds(tracks, sliceStart, sliceEnd, count) {
+    const pool = shuffle(tracks.slice(sliceStart, sliceEnd))
     const seeds = []
-
-    // while less seeds than count and within bounds of topTracks
-    for (let i = start; i < start + count && i < topTracks.length; i++) {
-        seeds.push(topTracks[i].id)
+    const seenArtistIds = new Set()
+    for (const track of pool) {
+        const artistId = track.artists?.[0]?.id
+        if (artistId && seenArtistIds.has(artistId)) continue
+        if (artistId) seenArtistIds.add(artistId)
+        seeds.push(track)
+        if (seeds.length >= count) break
     }
     return seeds
 }
 
-// pick unique tracks for final playlist, making sure duplicate tracks aren't picked from exploitation/exploration pools
-// goal: close and explore won't both add the same track
-export function pickUniqueTracks(tracks, count, usedIds) {
+// pick unique tracks, making sure duplicate tracks aren't picked from close/explore pools
+
+function pickUniqueTracks(tracks, count, usedIds) {
     const uniqueTracks = tracks.filter(track => !usedIds.has(track.id))
-    return shuffle(uniqueTracks).slice(0, count)
+    return uniqueTracks.slice(0, count)
 }
 
 // mix close and explore tracks into final playlist
-// goal: final playlist has a good balance of exploitation and exploration (close and explore), 70/30 split
-export function mixTaste({
-    closeTracks,
-    exploreTracks,
-    total = 30,
-    closeRatio = 0.7,
-}) {
+
+export function mixTaste({ closeTracks, exploreTracks, total = 20, closeRatio = 0.75, }) {
     const closeCount = Math.round(total * closeRatio)
     const exploreCount = total - closeCount
 
@@ -94,6 +91,7 @@ export function mixTaste({
 }
 
 // fisher-yates shuffle, unbiased random ordering
+
 export function shuffle(arr) {
     const a = [...arr]
     for (let i = a.length - 1; i > 0; i--) {
