@@ -1,26 +1,7 @@
 import { cookies } from 'next/headers';
-import {
-    fetchMe,
-    fetchTopTracks,
-    fetchTopArtists,
-    fetchRecentTracks,
-    searchTracks,
-    createPlaylist,
-    addTracks
-} from '@/lib/spotifyApi';
-
-import {
-    searchArtist,
-    fetchSimilarArtists
-} from '@/lib/appleMusicApi';
-
-import {
-    shuffle,
-    removeDuplicates,
-    countRecentPlays,
-    filterByRecentPlays,
-    mixTaste
-} from '@/lib/playlistRules';
+import { fetchMe, fetchTopTracks, fetchTopArtists, fetchRecentTracks, createPlaylist, addTracks } from '@/lib/spotifyApi';
+import { fetchSeedRecommendations } from '@/lib/spotifyInternal';
+import { shuffle, removeDuplicates, countRecentPlays, filterByRecentPlays, mixTaste, pickSeeds } from '@/lib/playlistRules';
 
 export const dynamic = 'force-dynamic'
 
@@ -43,92 +24,56 @@ export async function POST() {
         }
 
         // fetch all spotify data in parallel
-        const [top, topShort, topMedium, recent] = await Promise.all([
+        const [topShortTracks, topMediumTracks, topShort, recent] = await Promise.all([
             fetchTopTracks(token, { time_range: "short_term", limit: 50 }),
+            fetchTopTracks(token, { time_range: "medium_term", limit: 50 }),
             fetchTopArtists(token, { time_range: "short_term", limit: 50 }),
-            fetchTopArtists(token, { time_range: "medium_term", limit: 50 }),
             fetchRecentTracks(token, { limit: 50 }),
         ])
 
-        const topTracks = top?.items || []
+        const shortTracks = topShortTracks?.items || []
+        const mediumTracks = topMediumTracks?.items || []
         const shortArtists = topShort?.items || []
-        const mediumArtists = topMedium?.items || []
         const recentTracks = recent?.items || []
 
-        // combine both for filtering (all known artists)
-        const seenNames = new Set()
-        const topArtists = [...shortArtists, ...mediumArtists].filter(a => {
-            const name = a.name.toLowerCase()
-            if (seenNames.has(name)) return false
-            seenNames.add(name)
-            return true
-        })
+        const topArtists = shortArtists.slice(0, 30)
 
-        // make sure enough top artists to use for seeds
-        if (shortArtists.length < 10) {
+        if (shortTracks.length < 10 || shortArtists.length < 10) {
             return new Response("Not enough listening history yet", { status: 400 })
         }
 
-        // randomly pick seeds from each pool for variety between generations
-        const closeSeeds = shuffle(shortArtists.slice(0, 15)).slice(0, 10)
-        const exploreSeeds = shuffle(mediumArtists.slice(5, 25)).slice(0, 10)
+        const closeSeeds = pickSeeds(shortTracks, 0, 25, 15)
+        const exploreSeeds = pickSeeds(mediumTracks, 5, 30, 5)
 
-        const closeRelated = []
-        const exploreRelated = []
-
-        // find similar artists via apple music for each seed
-        const findSimilarForArtist = async (artist) => {
-            const searchData = await searchArtist(artist.name)
-            const appleId = searchData?.results?.artists?.data?.[0]?.id
-            if (!appleId) return []
-
-            const similarData = await fetchSimilarArtists(appleId)
-            const similar = similarData?.data || []
-            return similar.map(a => ({ name: a.attributes?.name }))
-        }
-
+        // get all radio tracks for each seed
         const [closeResults, exploreResults] = await Promise.all([
-            Promise.allSettled(closeSeeds.map(findSimilarForArtist)),
-            Promise.allSettled(exploreSeeds.map(findSimilarForArtist)),
+            Promise.allSettled(closeSeeds.map(t => fetchSeedRecommendations(t.uri))),
+            Promise.allSettled(exploreSeeds.map(t => fetchSeedRecommendations(t.uri))),
         ])
 
-        for (const r of closeResults) if (r.status === "fulfilled") closeRelated.push(...r.value)
-        for (const r of exploreResults) if (r.status === "fulfilled") exploreRelated.push(...r.value)
+        let closePool = closeResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
+        let explorePool = exploreResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
 
-        // remove duplicate related artists, remove users top artists (by name since apple music ids differ from spotify)
-        const topArtistNames = new Set(topArtists.map(a => a.name.toLowerCase()))
-        const removeDuplicateArtists = (artists) => {
+        // remove seed tracks from pools
+        const seedUris = new Set([...closeSeeds, ...exploreSeeds].map(t => t.uri))
+        closePool = closePool.filter(t => !seedUris.has(t.uri))
+        explorePool = explorePool.filter(t => !seedUris.has(t.uri))
+
+        // remove duplicate tracks by uri across all radios
+        const removeDuplicateTracks = (tracks) => {
             const seen = new Set()
-            return artists.filter(a => {
-                const name = a.name?.toLowerCase()
-                if (!name || topArtistNames.has(name) || seen.has(name)) return false
-                seen.add(name)
+            return tracks.filter(t => {
+                if (seen.has(t.uri)) return false
+                seen.add(t.uri)
                 return true
             })
         }
+        closePool = removeDuplicateTracks(closePool)
+        explorePool = removeDuplicateTracks(explorePool)
 
-        const closeArtists = shuffle(removeDuplicateArtists(closeRelated)).slice(0, 15)
-        const exploreArtists = shuffle(removeDuplicateArtists(exploreRelated)).slice(0, 15)
-
-        // search for tracks by each related artist (parallelized)
-        const searchArtistTracks = async (artist) => {
-            const data = await searchTracks(token, `artist:${artist.name}`, { limit: 10 })
-            const items = data?.tracks?.items || []
-            return items.map(t => ({
-                id: t.id,
-                uri: t.uri,
-                name: t.name,
-                artists: (t.artists || []).map(a => ({ name: a.name, id: a.id })),
-            }))
-        }
-
-        const [closeTrackResults, exploreTrackResults] = await Promise.all([
-            Promise.allSettled(closeArtists.map(searchArtistTracks)),
-            Promise.allSettled(exploreArtists.map(searchArtistTracks)),
-        ])
-
-        let closeCandidates = closeTrackResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
-        let exploreCandidates = exploreTrackResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
+        // shuffle pooled tracks so picks aren't biased toward first radio
+        let closeCandidates = shuffle(closePool)
+        let exploreCandidates = shuffle(explorePool)
 
         closeCandidates = removeDuplicates(closeCandidates, topArtists)
         exploreCandidates = removeDuplicates(exploreCandidates, topArtists)
@@ -144,12 +89,12 @@ export async function POST() {
         // liked songs filter
         // past gens filter
         // artist repeat limit filter
-        
+
         let finalTracks = mixTaste({
             closeTracks: closeCandidates,
             exploreTracks: exploreCandidates,
             total: 20,
-            closeRatio: 0.5,
+            closeRatio: 0.75,
         })
 
         if (finalTracks.length < 10) {
