@@ -4,7 +4,7 @@
 <h1 align="center">
     Discover Daily
 </h1>
-Update - I had to pay $100 for apple music api, so now i pull top artists from spotify, search similar on apple music, then back to spotify to find new stuff. This is my current best option even though it still kinda sucks (I'm good at finding new music so I'd know). I'll be trying to make the recommendations better with my limited options, although it will never be as good as being able to use spotify's recommendations endpoint :(
+Update - resorting to secret internal api
 
 
 
