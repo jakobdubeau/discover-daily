@@ -1,3 +1,5 @@
+// currently unused
+
 import "server-only"
 import jwt from "jsonwebtoken"
 
