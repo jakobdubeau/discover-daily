@@ -19,13 +19,6 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install curl-impersonate
-        run: |
-          curl -Lo curl-impersonate.tar.gz https://github.com/lexiforest/curl-impersonate/releases/download/v1.4.4/curl-impersonate-v1.4.4.x86_64-linux-gnu.tar.gz
-          tar -xzf curl-impersonate.tar.gz
-          sudo mv curl-impersonate curl_chrome* /usr/local/bin/
-          rm -f curl-impersonate.tar.gz curl_*
-
       - name: Install dependencies
         run: npm install @supabase/supabase-js
 
