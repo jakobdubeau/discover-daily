@@ -21,10 +21,11 @@ jobs:
 
       - name: Install curl-impersonate
         run: |
-          curl -Lo curl-impersonate.tar.gz https://github.com/lwthiker/curl-impersonate/releases/download/v0.6.1/curl-impersonate-v0.6.1.x86_64-linux-gnu.tar.gz
+          curl -Lo curl-impersonate.tar.gz https://github.com/lexiforest/curl-impersonate/releases/download/v1.4.4/curl-impersonate-v1.4.4.x86_64-linux-gnu.tar.gz
           mkdir curl-impersonate && tar -xzf curl-impersonate.tar.gz -C curl-impersonate
           sudo mv curl-impersonate/* /usr/local/bin/
           rm -rf curl-impersonate curl-impersonate.tar.gz
+          curl-impersonate-chrome --version
 
       - name: Install dependencies
         run: npm install @supabase/supabase-js
