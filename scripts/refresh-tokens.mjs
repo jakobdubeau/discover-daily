@@ -7,7 +7,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 function fetchInternalToken() {
     const result = execSync(
-        `curl-impersonate-chrome -s -b "sp_dc=${SP_DC}" "https://open.spotify.com/get_access_token?reason=transport&productType=web_player"`,
+        `curl_chrome142 -s -b "sp_dc=${SP_DC}" "https://open.spotify.com/get_access_token?reason=transport&productType=web_player"`,
         { encoding: "utf-8" }
     );
     const data = JSON.parse(result);
@@ -32,7 +32,7 @@ function fetchClientToken() {
         },
     });
     const result = execSync(
-        `curl-impersonate-chrome -s -X POST -H "content-type: application/json" -d '${body}' "https://clienttoken.spotify.com/v1/clienttoken"`,
+        `curl_chrome142 -s -X POST -H "content-type: application/json" -d '${body}' "https://clienttoken.spotify.com/v1/clienttoken"`,
         { encoding: "utf-8" }
     );
     const data = JSON.parse(result);
