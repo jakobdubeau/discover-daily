@@ -20,7 +20,10 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm install impit @supabase/supabase-js
+        run: npm install playwright @supabase/supabase-js
+
+      - name: Install Chromium
+        run: npx playwright install chromium
 
       - name: Refresh tokens
         env:
