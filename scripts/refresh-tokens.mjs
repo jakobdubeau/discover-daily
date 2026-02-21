@@ -82,7 +82,7 @@ async function getSpotifyTOTP() {
 async function fetchInternalToken() {
     const totp = await getSpotifyTOTP();
     const res = await fetch(
-        `https://open.spotify.com/api/token?reason=transport&productType=web_player&totp=${totp}`,
+        `https://open.spotify.com/get_access_token?reason=transport&productType=web_player&totp=${totp}`,
         {
             headers: {
                 cookie: `sp_dc=${SP_DC}`,
