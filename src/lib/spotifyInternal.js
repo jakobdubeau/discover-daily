@@ -1,14 +1,10 @@
-// Spotify internal api
+import { getInternalToken, getClientToken } from "./spotifyTokens"
 
 // fetch related artists via internal GraphQL
 // returns array of { id, name, uri }
-
 export async function fetchRelatedArtists(artistId) {
-    const token = process.env.SPOTIFY_INTERNAL_TOKEN
-    const clientToken = process.env.SPOTIFY_CLIENT_TOKEN
-
-    if (!token) throw new Error("Missing SPOTIFY_INTERNAL_TOKEN env var")
-    if (!clientToken) throw new Error("Missing SPOTIFY_CLIENT_TOKEN env var")
+    const token = await getInternalToken()
+    const clientToken = await getClientToken()
 
     const res = await fetch("https://api-partner.spotify.com/pathfinder/v2/query", {
         method: "POST",
@@ -51,8 +47,7 @@ export async function fetchRelatedArtists(artistId) {
 // calls seed_to_playlist, gets radio playlist URI, fetches playlist contents
 // returns array of { id, uri, name, artists: [{ name, id }] }
 export async function fetchSeedRecommendations(seedUri) {
-    const token = process.env.SPOTIFY_INTERNAL_TOKEN
-    if (!token) throw new Error("Missing SPOTIFY_INTERNAL_TOKEN env var")
+    const token = await getInternalToken()
 
     // get radio playlist URI from seed
     const res = await fetch(
@@ -99,11 +94,8 @@ export async function fetchSeedRecommendations(seedUri) {
 // playlistUri format: "spotify:playlist:37i9dQZF1E8QHlsuPQvLAd"
 
 export async function fetchPlaylistContents(playlistUri) {
-    const token = process.env.SPOTIFY_INTERNAL_TOKEN
-    const clientToken = process.env.SPOTIFY_CLIENT_TOKEN
-
-    if (!token) throw new Error("Missing SPOTIFY_INTERNAL_TOKEN env var")
-    if (!clientToken) throw new Error("Missing SPOTIFY_CLIENT_TOKEN env var")
+    const token = await getInternalToken()
+    const clientToken = await getClientToken()
 
     const res = await fetch("https://api-partner.spotify.com/pathfinder/v2/query", {
         method: "POST",

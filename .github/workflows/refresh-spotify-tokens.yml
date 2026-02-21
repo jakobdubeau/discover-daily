@@ -1,0 +1,30 @@
+name: Refresh Spotify Tokens
+
+on:
+  schedule:
+    - cron: "*/45 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install impit @supabase/supabase-js
+
+      - name: Refresh tokens
+        env:
+          SPOTIFY_SP_DC: ${{ secrets.SPOTIFY_SP_DC }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/refresh-tokens.mjs
