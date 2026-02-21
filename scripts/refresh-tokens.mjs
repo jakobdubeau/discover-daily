@@ -7,10 +7,13 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 async function fetchInternalToken(context) {
     const page = await context.newPage();
-    const res = await page.goto(
-        "https://open.spotify.com/get_access_token?reason=transport&productType=web_player"
-    );
-    const data = await res.json();
+    // navigate to spotify first to establish session
+    await page.goto("https://open.spotify.com", { waitUntil: "domcontentloaded" });
+    // fetch token from within page context (same-origin request)
+    const data = await page.evaluate(async () => {
+        const res = await fetch("/get_access_token?reason=transport&productType=web_player");
+        return res.json();
+    });
     await page.close();
     if (!data.accessToken || data.isAnonymous) {
         throw new Error("Failed to get internal token — sp_dc may be expired");
