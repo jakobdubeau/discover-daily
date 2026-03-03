@@ -1,36 +1,33 @@
-import { fetchPlaylistTracks } from "./spotifyApi"
-
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY
 const RAPIDAPI_HOST = "spotify81.p.rapidapi.com"
 
-// get recommended tracks from a seed track via RapidAPI seed_to_playlist
-// then fetch the radio playlist's tracks via the official Spotify API
-// returns array of { id, uri, name, artists: [{ name, id }] }
-export async function fetchSeedRecommendations(seedUri, token) {
-    // step 1: get radio playlist URI from RapidAPI
-    const res = await fetch(
-        `https://${RAPIDAPI_HOST}/seed_to_playlist?uri=${encodeURIComponent(seedUri)}`,
-        {
-            headers: {
-                "x-rapidapi-host": RAPIDAPI_HOST,
-                "x-rapidapi-key": RAPIDAPI_KEY,
-            },
-            cache: "no-store",
-        }
-    )
-
+async function rapidApiFetch(endpoint) {
+    const res = await fetch(`https://${RAPIDAPI_HOST}${endpoint}`, {
+        headers: {
+            "x-rapidapi-host": RAPIDAPI_HOST,
+            "x-rapidapi-key": RAPIDAPI_KEY,
+        },
+        cache: "no-store",
+    })
     if (!res.ok) {
         const text = await res.text().catch(() => "")
-        throw new Error(`seed_to_playlist failed (${res.status}): ${text.slice(0, 200)}`)
+        throw new Error(`RapidAPI ${endpoint} failed (${res.status}): ${text.slice(0, 200)}`)
     }
+    return res.json()
+}
 
-    const data = await res.json()
+// get recommended tracks from a seed track
+// calls seed_to_playlist, then fetches the radio playlist's tracks
+// returns array of { id, uri, name, artists: [{ name, id }] }
+export async function fetchSeedRecommendations(seedUri) {
+    // step 1: get radio playlist URI
+    const data = await rapidApiFetch(`/seed_to_playlist?uri=${encodeURIComponent(seedUri)}`)
     const playlistUri = data?.mediaItems?.[0]?.uri
     if (!playlistUri) throw new Error("seed_to_playlist returned no playlist URI")
 
-    // step 2: fetch tracks via official Spotify API
+    // step 2: fetch tracks from the radio playlist
     const playlistId = playlistUri.replace("spotify:playlist:", "")
-    const contents = await fetchPlaylistTracks(token, playlistId)
+    const contents = await rapidApiFetch(`/playlist_tracks?id=${playlistId}&offset=0&limit=100`)
     const items = contents?.items || []
 
     return items.map(item => {

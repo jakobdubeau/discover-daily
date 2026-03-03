@@ -45,12 +45,27 @@ export async function POST() {
         const closeSeeds = pickSeeds(shortTracks, 0, 25, 15)
         const exploreSeeds = pickSeeds(mediumTracks, 5, 30, 5)
 
-        // get all radio tracks for each seed
-        const [closeResults, exploreResults] = await Promise.all([
-            Promise.allSettled(closeSeeds.map(t => fetchSeedRecommendations(t.uri, token))),
-            Promise.allSettled(exploreSeeds.map(t => fetchSeedRecommendations(t.uri, token))),
-        ])
+        // get all radio tracks for each seed (batched to stay under 5 req/s rate limit)
+        async function batchFetch(seeds, batchSize = 2, delayMs = 1000) {
+            const results = []
+            for (let i = 0; i < seeds.length; i += batchSize) {
+                const batch = seeds.slice(i, i + batchSize)
+                const batchResults = await Promise.allSettled(
+                    batch.map(t => fetchSeedRecommendations(t.uri))
+                )
+                results.push(...batchResults)
+                if (i + batchSize < seeds.length) {
+                    await new Promise(r => setTimeout(r, delayMs))
+                }
+            }
+            return results
+        }
 
+        const closeResults = await batchFetch(closeSeeds)
+        const exploreResults = await batchFetch(exploreSeeds)
+
+        const closeFailed = closeResults.filter(r => r.status === "rejected")
+        const exploreFailed = exploreResults.filter(r => r.status === "rejected")
         let closePool = closeResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
         let explorePool = exploreResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
 
