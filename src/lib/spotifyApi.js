@@ -72,6 +72,11 @@ export function createPlaylist(token, { name, isPublic = false, description = ""
     })
 }
 
+export function fetchPlaylistTracks(token, playlistId, { limit = 50 } = {}) {
+    const params = new URLSearchParams({ limit: String(limit) })
+    return spotifyFetch(token, `/playlists/${playlistId}/tracks?${params}`)
+}
+
 export function addTracks(token, playlistId, uris) {
     return spotifyFetch(token, `/playlists/${playlistId}/items`, {
         method: "POST",

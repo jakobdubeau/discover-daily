@@ -47,8 +47,8 @@ export async function POST() {
 
         // get all radio tracks for each seed
         const [closeResults, exploreResults] = await Promise.all([
-            Promise.allSettled(closeSeeds.map(t => fetchSeedRecommendations(t.uri))),
-            Promise.allSettled(exploreSeeds.map(t => fetchSeedRecommendations(t.uri))),
+            Promise.allSettled(closeSeeds.map(t => fetchSeedRecommendations(t.uri, token))),
+            Promise.allSettled(exploreSeeds.map(t => fetchSeedRecommendations(t.uri, token))),
         ])
 
         let closePool = closeResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
