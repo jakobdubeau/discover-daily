@@ -49,8 +49,10 @@ export async function POST() {
         const KEY_2 = process.env.RAPIDAPI_KEY_2
 
         // pipelined fetch: key 1 gets playlist IDs, key 2 fetches tracks
-        async function pipelineFetch(seeds, batchSize = 5, delayMs = 1000) {
-            const trackPromises = []
+        // both steps awaited per batch to prevent rate limit overlap
+        // pipelined fetch: key 1 gets playlist IDs, key 2 fetches tracks
+        async function pipelineFetch(seeds, batchSize = 5, delayMs = 500) {
+            const allTrackResults = []
 
             for (let i = 0; i < seeds.length; i += batchSize) {
                 const batch = seeds.slice(i, i + batchSize)
@@ -63,20 +65,22 @@ export async function POST() {
                     .filter(r => r.status === "fulfilled")
                     .map(r => r.value)
 
-                trackPromises.push(
-                    Promise.allSettled(playlistIds.map(id => fetchRadioTracks(id, KEY_2)))
+                const trackResults = await Promise.allSettled(
+                    playlistIds.map(id => fetchRadioTracks(id, KEY_2))
                 )
+
+                allTrackResults.push(...trackResults)
 
                 if (i + batchSize < seeds.length) {
                     await new Promise(r => setTimeout(r, delayMs))
                 }
             }
 
-            const batched = await Promise.all(trackPromises)
-            return batched.flat()
+            return allTrackResults
         }
 
         const closeResults = await pipelineFetch(closeSeeds)
+        await new Promise(r => setTimeout(r, 1200))
         const exploreResults = await pipelineFetch(exploreSeeds)
 
         let closePool = closeResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
