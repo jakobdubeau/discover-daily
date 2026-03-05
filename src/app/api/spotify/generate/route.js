@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { fetchMe, fetchTopTracks, fetchTopArtists, fetchRecentTracks, createPlaylist, addTracks } from '@/lib/spotifyApi';
-import { fetchSeedRecommendations } from '@/lib/spotifyInternal';
+import { fetchRadioPlaylistId, fetchPlaylistTracks as fetchRadioTracks } from '@/lib/spotifyInternal';
 import { shuffle, removeDuplicates, countRecentPlays, filterByRecentPlays, mixTaste, pickSeeds } from '@/lib/playlistRules';
 
 export const dynamic = 'force-dynamic'
@@ -45,27 +45,40 @@ export async function POST() {
         const closeSeeds = pickSeeds(shortTracks, 0, 25, 15)
         const exploreSeeds = pickSeeds(mediumTracks, 5, 30, 5)
 
-        // get all radio tracks for each seed (batched to stay under 5 req/s rate limit)
-        async function batchFetch(seeds, batchSize = 2, delayMs = 1000) {
-            const results = []
+        const KEY_1 = process.env.RAPIDAPI_KEY
+        const KEY_2 = process.env.RAPIDAPI_KEY_2
+
+        // pipelined fetch: key 1 gets playlist IDs, key 2 fetches tracks
+        async function pipelineFetch(seeds, batchSize = 5, delayMs = 1000) {
+            const trackPromises = []
+
             for (let i = 0; i < seeds.length; i += batchSize) {
                 const batch = seeds.slice(i, i + batchSize)
-                const batchResults = await Promise.allSettled(
-                    batch.map(t => fetchSeedRecommendations(t.uri))
+
+                const idResults = await Promise.allSettled(
+                    batch.map(t => fetchRadioPlaylistId(t.uri, KEY_1))
                 )
-                results.push(...batchResults)
+
+                const playlistIds = idResults
+                    .filter(r => r.status === "fulfilled")
+                    .map(r => r.value)
+
+                trackPromises.push(
+                    Promise.allSettled(playlistIds.map(id => fetchRadioTracks(id, KEY_2)))
+                )
+
                 if (i + batchSize < seeds.length) {
                     await new Promise(r => setTimeout(r, delayMs))
                 }
             }
-            return results
+
+            const batched = await Promise.all(trackPromises)
+            return batched.flat()
         }
 
-        const closeResults = await batchFetch(closeSeeds)
-        const exploreResults = await batchFetch(exploreSeeds)
+        const closeResults = await pipelineFetch(closeSeeds)
+        const exploreResults = await pipelineFetch(exploreSeeds)
 
-        const closeFailed = closeResults.filter(r => r.status === "rejected")
-        const exploreFailed = exploreResults.filter(r => r.status === "rejected")
         let closePool = closeResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
         let explorePool = exploreResults.filter(r => r.status === "fulfilled").flatMap(r => r.value)
 
